@@ -1,0 +1,51 @@
+syntax = "proto3";
+import "nanopb.proto";
+
+# Compiling for python output (keep copy of nanopb_pb2.py on output folder):
+# protoc --proto_path=D:\path\to\nanopb\generator\proto --proto_path=. --python_out=. .\protocol.proto
+
+# Compiling for C output:
+# protoc --plugin=protoc-gen-nanopb=C:\nanopb-0.4.5-win64\bin\protoc-gen-nanopb.exe --proto_path=D:\path\to\nanopb\generator\proto --proto_path=. --nanopb_out=. protocol.proto
+# or
+# python D:\path\to\nanopb\generator\nanopb_generator.py .\protocol.proto
+
+
+enum Id_en
+{
+  LED_MSG_Id = 0;
+  RTC_MSG_Id = 1;
+}
+
+enum LED_SubId_en
+{
+  LED_OFF_SubId = 0;
+  LED_ON_SubId = 1;
+  LED_PWM_SubId = 2;
+}
+
+enum RTC_SubId_en
+{
+  RTC_SET_ALARM_SubId = 0;
+}
+
+message uart_frame
+{
+  message uart_command
+  {
+    optional Id_en    Id = 11;
+
+    oneof SubId
+    {
+      LED_SubId_en SubId_led = 12;
+      RTC_SubId_en SubId_rtc = 13;
+    }
+
+    optional uint32    Action = 14;
+    bytes    Data = 15  [(nanopb).max_size = 50];
+  }
+
+  optional bytes my_sof = 1;
+  optional uart_command my_cmd = 2;
+  optional bytes my_crc = 3;
+  optional bytes my_eof = 4;
+}
